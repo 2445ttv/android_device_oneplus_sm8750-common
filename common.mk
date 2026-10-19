@@ -157,11 +157,29 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml
 
-# Doze
-ifneq ($(TARGET_IS_TABLET),true)
-PRODUCT_PACKAGES += \
-    OplusDoze \
-    OplusDozeResCommon
+# telegram
+$(call soong_config_set_bool,stagefright,target_disable_thumbnail_block_model,true)
+
+# Enable whole-program R8 Java optimizations for SystemUI and system_server,
+# but also allow explicit overriding for testing and development.
+SYSTEM_OPTIMIZE_JAVA := true
+SYSTEMUI_OPTIMIZE_JAVA := true
+
+# Reduce system server verbosity.
+PRODUCT_SYSTEM_SERVER_DEBUG_INFO := false
+
+# Logging - OnePlus 13 (Qualcomm / OPLUS)
+SPAMMY_LOG_TAGS := \
+    SDM \
+    SRE \
+    android.hardware.power-service-qti \
+    libsensor-boledalgo \
+    sensors \
+    vendor.qti.hardware.display.composer-service
+
+ifneq ($(TARGET_BUILD_VARIANT),eng)
+PRODUCT_VENDOR_PROPERTIES += \
+    $(foreach tag,$(SPAMMY_LOG_TAGS),log.tag.$(tag)=E)
 endif
 
 # DRM
@@ -388,7 +406,7 @@ endif
 
 # Sensors
 PRODUCT_PACKAGES += \
-    android.hardware.sensors-service.multihal \
+    android.hardware.sensors-service.oplus-multihal \
     sensors.dynamic_sensor_hal \
     sensors.fusionlight
 
